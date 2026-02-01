@@ -1,0 +1,30 @@
+FEATURES = [
+    "flow_duration",
+    "total_fwd_packets",
+    "total_backward_packets",
+    "flow_bytes_s",
+    "flow_packets_s",
+    "fwd_packet_length_mean",
+    "bwd_packet_length_mean",
+    "flow_iat_mean",
+    "active_mean",
+    "idle_mean",
+    "syn_flag_count",
+    "bwd_packets_s",
+    "total_length_of_fwd_packets",
+    "total_length_of_bwd_packets",
+    "flow_iat_std",
+    "flow_iat_min",
+    "fwd_iat_std",
+    "bwd_iat_std",
+    "packet_length_std",
+    "packet_length_variance",
+    "ack_flag_count",
+    "psh_flag_count",
+    "rst_flag_count",
+    "subflow_fwd_packets",
+    "subflow_bwd_packets",
+]
+
+WINDOW_SIZE = 50
+ALERT_THRESHOLD = -0.15

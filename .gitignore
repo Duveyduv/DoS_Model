@@ -1,0 +1,35 @@
+# ------------------------
+# Python
+# ------------------------
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.sqlite3
+*.log
+
+# ------------------------
+# Virtual environment
+# ------------------------
+venv/
+vm_ddos_model/bin/
+vm_ddos_model/lib/
+vm_ddos_model/include/
+vm_ddos_model/pyvenv.cfg
+vm_ddos_model/data
+
+# ------------------------
+# OS / editor
+# ------------------------
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# ------------------------
+# Temporary files
+# ------------------------
+*.out
+*.err
+tmp/
+temp/
