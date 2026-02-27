@@ -16,7 +16,7 @@ scan_start_time = time.time()
 
 # Initialize your detector (ensure the path to your .joblib is correct)
 try:
-    detector = AnomalyDetector("model/iso_forest_windowed_model.joblib")
+    detector = AnomalyDetector("vm_ddos_model/model/iso_forest_windowed_model.joblib")
 except Exception as e:
     print(f"Model Load Error: {e}")
     detector = None
