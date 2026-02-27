@@ -1,130 +1,302 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>IDS AI Model Dashboard</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<meta charset="UTF-8" />
+<title>IDS AI Model Dashboard</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body class="bg-[#8e8e8e] p-8 font-sans">
 
-    <div class="max-w-6xl mx-auto bg-[#a3a3a3] rounded-3xl p-8 shadow-2xl flex gap-8">
-        
-        <div class="flex-1">
-            <div class="grid grid-cols-3 gap-6 mb-8">
-                <div class="bg-[#e0e0e0] rounded-2xl p-6 text-center shadow-md relative overflow-hidden">
-                    <h3 class="text-xl text-gray-600">Anomalies</h3>
-                    <p class="text-5xl font-light text-red-500 my-4">5,108</p>
-                    <i class="fas fa-shield-alt absolute bottom-2 right-4 text-gray-300 text-6xl opacity-40"></i>
-                </div>
-                <div class="bg-[#e0e0e0] rounded-2xl p-6 text-center shadow-md relative overflow-hidden">
-                    <h3 class="text-xl text-gray-600">Uptime</h3>
-                    <p class="text-4xl font-light text-red-500 my-4" id="uptime">1:20:43.35</p>
-                    <i class="far fa-clock absolute bottom-2 right-4 text-gray-300 text-6xl opacity-40"></i>
-                </div>
-                <div class="bg-[#e0e0e0] rounded-2xl p-6 text-center shadow-md relative overflow-hidden">
-                    <h3 class="text-xl text-gray-600">Alert Level</h3>
-                    <p class="text-4xl font-light text-red-500 my-4 uppercase">Moderate</p>
-                    <i class="fas fa-exclamation-triangle absolute bottom-2 right-4 text-gray-300 text-6xl opacity-40"></i>
-                </div>
-            </div>
+<body class="bg-gray-200 p-10 font-mono">
+<div class="max-w-6xl mx-auto bg-white p-8 rounded-xl shadow-lg">
 
-            <div class="bg-[#e0e0e0] rounded-2xl p-6 shadow-md">
-                <h3 class="text-3xl text-gray-700 mb-4">Activity</h3>
-                <canvas id="activityChart" height="150"></canvas>
-            </div>
-        </div>
+  <div class="flex items-center justify-between mb-8">
+    <h1 class="text-3xl font-bold">DDoS Detection Dashboard</h1>
+    <div class="text-sm">
+      <span class="font-bold">Status:</span>
+      <span id="statusText">Idle</span>
+      <span class="ml-6 font-bold">Rows:</span>
+      <span id="rowsText">0</span>
+    </div>
+  </div>
 
-        <div class="w-80 bg-[#e0e0e0] rounded-3xl p-6 shadow-md flex flex-col">
-            <h3 class="text-2xl text-center text-gray-700 mb-4">Alerts</h3>
-            <ul class="text-red-500 text-sm space-y-1 mb-8">
-                <li>• SYN Flood Detected</li>
-                <li>• Traffic on Restricted Port</li>
-                <li>• SQL Injection Attempt</li>
-                <li>• Malformed HTTP Request</li>
-            </ul>
+  <div class="grid grid-cols-5 gap-6 mb-8">
 
-            <!-- <h4 class="text-lg text-gray-700 font-semibold mb-2">Run Network Analysis</h4>
-            <div id="dropzone" class="border-2 border-dashed border-gray-400 rounded-xl p-4 text-center cursor-pointer hover:bg-gray-200 transition">
-                <i class="fas fa-cloud-upload-alt text-3xl text-gray-500 mb-2"></i>
-                <p class="text-xs text-gray-500">Drag & drop network log (CSV/PCAP) or click to browse</p>
-                <input type="file" id="fileInput" class="hidden">
-            </div>
-
-            <button onclick="startScan()" class="mt-4 bg-[#3b82f6] text-white py-2 rounded-lg hover:bg-blue-600 transition uppercase font-bold">
-                Start AI Scan
-            </button>
-
-            <div class="mt-6">
-                <p class="text-gray-700 font-semibold mb-2">Scan Result:</p>
-                <div class="bg-[#2d2d2d] text-green-400 p-3 rounded-lg font-mono text-xs h-32 overflow-auto" id="resultBox">
-                    [Waiting for input...]
-                </div>
-            </div> -->
-        </div>
+    <div id="anomalyCard" class="bg-red-100 border border-red-300 rounded-xl p-6 text-center transition">
+      <div class="text-red-600 text-sm uppercase font-semibold">Total Anomalies</div>
+      <div id="anomalyCount" class="text-5xl font-bold text-red-700 mt-3">0</div>
+      <div class="text-xs text-red-700 mt-2 opacity-80">Live count</div>
     </div>
 
-    <script>
-        // Setup the Chart
-        const ctx = document.getElementById('activityChart').getContext('2d');
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: Array(15).fill(''),
-                datasets: [{
-                    label: 'Traffic Activity',
-                    data: [5, 12, 18, 17, 10, 5, 8, 15, 22, 10, 8, 7, 12],
-                    borderColor: '#ef4444',
-                    borderWidth: 3,
-                    tension: 0.1,
-                    pointRadius: 0
-                }]
-            },
-            options: {
-                plugins: { legend: { display: false } },
-                scales: { 
-                    y: { grid: { color: '#ccc' }, ticks: { display: false } },
-                    x: { grid: { color: '#ccc' } }
-                }
-            }
-        });
+    <!-- Threshold -->
+    <div class="bg-gray-100 rounded-xl p-6 text-center relative group cursor-help">
+      <div class="text-gray-600 text-sm uppercase font-semibold flex items-center justify-center gap-1">
+        Threshold <span class="text-gray-400"></span>
+      </div>
+      <div id="thresholdText" class="text-3xl font-bold mt-3">-0.15</div>
+    </div>
 
-        // File Selection
-        const dropzone = document.getElementById('dropzone');
-        const fileInput = document.getElementById('fileInput');
-        dropzone.onclick = () => fileInput.click();
+    <!-- Last Score -->
+    <div class="bg-gray-100 rounded-xl p-6 text-center relative group cursor-help">
+      <div class="text-gray-600 text-sm uppercase font-semibold flex items-center justify-center gap-1">
+        Last Score <span class="text-gray-400"></span>
+      </div>
+      <div id="lastScoreText" class="text-3xl font-bold mt-3">—</div>
+    </div>
 
-        async function startScan() {
-            if (fileInput.files.length === 0) return alert("Select a file first");
-            
-            const resultBox = document.getElementById('resultBox');
-            resultBox.innerText = "Analyzing traffic...";
+    <!-- Worst Score Seen (tooltip) -->
+    <div class="bg-gray-100 rounded-xl p-6 text-center relative group cursor-help">
+      <div class="text-gray-600 text-sm uppercase font-semibold flex items-center justify-center gap-1">
+        Worst Score Seen <span class="text-gray-400">*</span>
+      </div>
+      <div id="worstScoreText" class="text-3xl font-bold mt-3">—</div>
+      <div class="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 hidden group-hover:block
+                  bg-black text-white text-xs px-3 py-2 rounded shadow-lg whitespace-nowrap">
+        Lower score = more anomalous
+      </div>
+    </div>
 
-            const formData = new FormData();
-            formData.append('file', fileInput.files[0]);
+    <div class="bg-gray-100 rounded-xl p-6 text-center">
+      <div class="text-gray-600 text-sm uppercase font-semibold">Window Size</div>
+      <div id="windowSizeText" class="text-3xl font-bold mt-3">50</div>
+    </div>
 
-            try {
-                const response = await fetch('/analyze', { method: 'POST', body: formData });
-                const data = await response.json();
-                resultBox.innerText = JSON.stringify(data, null, 2);
-            } catch (err) {
-                resultBox.innerText = "Error: " + err;
-            }
-        }
-    </script>
-    <script>
-        async function updateUptime() {
-            const response = await fetch('/uptime');
-            const data = await response.json();
-            document.getElementById("uptime").innerText = data.uptime;
-        }
+  </div>
 
-        // Update every second
-        setInterval(updateUptime, 1000);
+  <div class="flex items-center gap-3 mb-6">
+    <input type="file" id="fileInput" class="border p-2 rounded w-full" />
+    <button id="startBtn" class="bg-blue-500 text-white px-4 py-2 rounded">Start</button>
+    <button id="stopBtn" class="bg-gray-500 text-white px-4 py-2 rounded" disabled>Stop</button>
+    <button id="clearBtn" class="bg-black text-white px-4 py-2 rounded">Clear</button>
+  </div>
 
-        // Run immediately on load
-        updateUptime();
-    </script>
+  <!-- Alerts / Log -->
+  <div id="resultBox" class="bg-black p-4 rounded h-[22rem] overflow-y-auto text-sm">
+    <div class="text-green-400">[Waiting for input...]</div>
+  </div>
+
+  <!-- PCA Cluster Plot -->
+  <div class="mt-6 bg-gray-100 rounded-xl p-6">
+    <div class="flex items-center justify-between mb-3">
+      <div class="text-gray-700 font-semibold text-sm uppercase tracking-wider">
+        PCA Clusters (Normal vs Anomaly)
+      </div>
+      <div class="text-xs text-gray-500">
+        X: <span id="xAxisLabel">PC1</span> | Y: <span id="yAxisLabel">PC2</span>
+      </div>
+    </div>
+    <div class="bg-white rounded-lg p-3">
+      <canvas id="clusterCanvas" height="180"></canvas>
+    </div>
+  </div>
+
+</div>
+
+<!-- Technical Explanation -->
+<div class="mt-10 bg-gray-50 border border-gray-200 rounded-xl p-6 text-sm text-gray-700 leading-relaxed">
+  <h3 class="text-lg font-semibold mb-3">Detection Methodology</h3>
+
+  <p class="mb-3">
+    <strong>Window-Based Detection:</strong>
+    The model analyzes traffic in rolling windows of 50 flows rather than evaluating individual rows independently.
+    Each window is temporally aggregated into statistical features (mean, standard deviation, min, max),
+    allowing the system to detect coordinated behavioral patterns instead of isolated spikes.
+  </p>
+
+  <p class="mb-3">
+    Because detection occurs at the window level, not every flow within a flagged window is necessarily malicious.
+    Instead, the model identifies anomalous behavior across correlated features within the time window.
+    A window may be flagged when combinations of packet rate, flag counts, flow timing, or byte distribution
+    collectively deviate from learned normal behavior.
+  </p>
+
+  <p class="mb-3">
+    <strong>PCA Visualization:</strong>
+    The cluster plot displays the first two principal components (PC1 and PC2) derived from the full
+    multi-dimensional feature space used by the anomaly model.
+    Principal Component Analysis reduces the high-dimensional traffic representation into a 2D projection
+    while preserving the strongest variance structure in the data.
+  </p>
+
+  <p>
+    This visualization does not change model behavior. It provides an interpretable projection
+    of the learned traffic distribution. Normal traffic forms dense clusters, while anomalous
+    windows appear displaced from the primary distribution in principal component space.
+  </p>
+</div>
+
+<script>
+let pollHandle = null;
+let autoScroll = true;
+
+const resultBox = document.getElementById("resultBox");
+const anomalyCard = document.getElementById("anomalyCard");
+
+resultBox.addEventListener("scroll", () => {
+  const threshold = 5;
+  const atBottom = resultBox.scrollHeight - resultBox.scrollTop - resultBox.clientHeight <= threshold;
+  autoScroll = atBottom;
+});
+
+function appendLine(msg, colorClass) {
+  const line = document.createElement("div");
+  line.className = colorClass;
+  line.textContent = msg;
+  resultBox.appendChild(line);
+  if (autoScroll) resultBox.scrollTop = resultBox.scrollHeight;
+}
+
+function pulseAnomalyCard() {
+  anomalyCard.classList.add("ring-4", "ring-red-400", "shadow-lg");
+  setTimeout(() => anomalyCard.classList.remove("ring-4", "ring-red-400", "shadow-lg"), 250);
+}
+
+function incAnomalies() {
+  const el = document.getElementById("anomalyCount");
+  el.textContent = String(parseInt(el.textContent || "0", 10) + 1);
+  pulseAnomalyCard();
+}
+
+// ----- Cluster chart (scatter) -----
+const clusterCtx = document.getElementById("clusterCanvas").getContext("2d");
+const clusterChart = new Chart(clusterCtx, {
+  type: "scatter",
+  data: {
+    datasets: [
+      { label: "Normal", data: [], pointRadius: 3 },
+      { label: "Anomaly", data: [], pointRadius: 5 }
+    ],
+  },
+  options: {
+    plugins: { legend: { display: true } },
+    scales: {
+      x: { title: { display: true, text: "PC1" } },
+      y: { title: { display: true, text: "PC2" } }
+    }
+  }
+});
+
+function setClusterAxes(xName, yName) {
+  document.getElementById("xAxisLabel").textContent = xName;
+  document.getElementById("yAxisLabel").textContent = yName;
+  clusterChart.options.scales.x.title.text = xName;
+  clusterChart.options.scales.y.title.text = yName;
+}
+
+function updateClusterPlot(allPoints) {
+  if (!allPoints || allPoints.length === 0) return;
+
+  const normal = [];
+  const anomaly = [];
+
+  for (const p of allPoints) {
+    const pt = { x: p.x, y: p.y };
+    if (p.is_anomaly === 1) anomaly.push(pt);
+    else normal.push(pt);
+  }
+
+  clusterChart.data.datasets[0].data = normal;
+  clusterChart.data.datasets[1].data = anomaly;
+  clusterChart.update();
+}
+
+// ----- UI controls -----
+function clearLog() {
+  resultBox.innerHTML = "";
+  document.getElementById("anomalyCount").textContent = "0";
+  document.getElementById("lastScoreText").textContent = "—";
+  document.getElementById("worstScoreText").textContent = "—";
+  document.getElementById("rowsText").textContent = "0";
+  document.getElementById("statusText").textContent = "Idle";
+
+  clusterChart.data.datasets[0].data = [];
+  clusterChart.data.datasets[1].data = [];
+  clusterChart.update();
+}
+
+async function startScan() {
+  const fileInput = document.getElementById("fileInput");
+  if (!fileInput.files.length) return alert("Select a CSV first");
+
+  clearLog();
+
+  const fd = new FormData();
+  fd.append("file", fileInput.files[0]);
+  document.getElementById("statusText").textContent = "Uploading...";
+
+  const resp = await fetch("/analyze", { method: "POST", body: fd });
+  const data = await resp.json();
+
+  if (data.error) {
+    document.getElementById("statusText").textContent = "Error";
+    appendLine("ERROR: " + data.error, "text-red-400");
+    return;
+  }
+
+  document.getElementById("windowSizeText").textContent = data.window_size;
+  document.getElementById("thresholdText").textContent = Number(data.alert_threshold).toFixed(5);
+
+  if (data.cluster_axes) setClusterAxes(data.cluster_axes.x, data.cluster_axes.y);
+
+  appendLine("[INFO] Stream initialized", "text-blue-300");
+  document.getElementById("statusText").textContent = "Running";
+
+  if (pollHandle) clearInterval(pollHandle);
+  pollHandle = setInterval(pollStream, 400);
+
+  document.getElementById("stopBtn").disabled = false;
+  document.getElementById("startBtn").disabled = true;
+}
+
+function stopScan() {
+  if (pollHandle) clearInterval(pollHandle);
+  pollHandle = null;
+  document.getElementById("statusText").textContent = "Stopped";
+  document.getElementById("startBtn").disabled = false;
+  document.getElementById("stopBtn").disabled = true;
+}
+
+async function pollStream() {
+  const resp = await fetch("/stream");
+  const data = await resp.json();
+
+  if (data.rows_consumed != null) document.getElementById("rowsText").textContent = data.rows_consumed;
+  if (data.last_score != null) document.getElementById("lastScoreText").textContent = Number(data.last_score).toFixed(5);
+  if (data.worst_score_seen != null) document.getElementById("worstScoreText").textContent = Number(data.worst_score_seen).toFixed(5);
+  if (data.cluster_axes) setClusterAxes(data.cluster_axes.x, data.cluster_axes.y);
+
+  if (data.status === "warming_up") {
+    document.getElementById("statusText").textContent = `Warming up (${data.rows_consumed}/${data.needed})`;
+    // still update plot if available
+    if (data.cluster_points) updateClusterPlot(data.cluster_points);
+    return;
+  }
+
+  if (data.status === "complete") {
+    document.getElementById("statusText").textContent = "Complete";
+    appendLine(`[DONE] End of file. Rows=${data.rows_consumed}`, "text-yellow-300");
+    if (data.cluster_points) updateClusterPlot(data.cluster_points);
+    stopScan();
+    return;
+  }
+
+  if (data.status === "tick" && data.lines) {
+    document.getElementById("statusText").textContent = "Running";
+    data.lines.forEach(item => {
+      const color = item.type === "alert" ? "text-red-400" : "text-green-400";
+      appendLine(item.message, color);
+      if (item.type === "alert") incAnomalies();
+    });
+  }
+
+  // Always update plot from capped history (fast + stable)
+  if (data.cluster_points) updateClusterPlot(data.cluster_points);
+}
+
+document.getElementById("startBtn").onclick = startScan;
+document.getElementById("stopBtn").onclick = stopScan;
+document.getElementById("clearBtn").onclick = clearLog;
+</script>
+
 </body>
 </html>
