@@ -126,9 +126,16 @@ The UI displays:
 
 ## Project Structure
 
-Csv_stream/ aggregator.py config.py detector.py loader.py
+Csv_stream/ 
+* aggregator.py 
+* config.py 
+* detector.py 
+* loader.py
 
-gui/ app.py templates/ index.html
+gui/ 
+* app.py
+* templates/
+    * index.html
 
 ------------------------------------------------------------------------
 
